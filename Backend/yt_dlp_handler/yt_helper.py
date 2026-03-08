@@ -21,20 +21,26 @@ def human_readable_size(size_bytes):
     return f"{size_bytes:.2f} TB"
 
 def check_ffmpeg():
-    """Check if FFmpeg is available. Checks known install locations then PATH."""
+    """Check if FFmpeg is available. Checks known locations, PATH, then imageio-ffmpeg."""
     candidates = [
         '/opt/homebrew/bin/ffmpeg',          # macOS Homebrew (Apple Silicon)
         '/usr/local/bin/ffmpeg',              # macOS Homebrew (Intel) / Linux
         '/usr/bin/ffmpeg',                    # Linux apt
-        r'C:\ffmpeg\bin\ffmpeg.exe',          # Windows manual install
-        r'C:\Program Files\ffmpeg\bin\ffmpeg.exe',
-        r'C:\ProgramData\chocolatey\bin\ffmpeg.exe',  # Windows Chocolatey
     ]
-    for path in candidates:
-        if os.path.exists(path):
-            return path
-    # Fall back to PATH lookup (works if ffmpeg is in PATH on any OS)
-    return shutil.which('ffmpeg')
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    # Check system PATH (catches Windows manual installs and Chocolatey)
+    found = shutil.which('ffmpeg')
+    if found:
+        return found
+    # Last resort: imageio-ffmpeg ships a static binary, works on Windows with no manual install
+    try:
+        import imageio_ffmpeg
+        return imageio_ffmpeg.get_ffmpeg_exe()
+    except Exception:
+        pass
+    return None
 
 def list_formats(video_url):
     """List available formats for the given URL, return JSON-serializable list."""

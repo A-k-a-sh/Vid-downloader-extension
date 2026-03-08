@@ -31,26 +31,26 @@ On macOS with Homebrew:
 
 ```bash
 brew install ffmpeg
-pip install yt-dlp
+pip install yt-dlp imageio-ffmpeg
 ```
 
 ## Setup
 
 ### 1. Python Dependencies
 
-Install yt-dlp and FFmpeg. yt-dlp is the only Python package required — it is not bundled and must be installed manually.
-
 ```bash
-pip install yt-dlp
+pip install yt-dlp imageio-ffmpeg
 ```
 
-Or if your system defaults to `python` instead of `python3`:
+`imageio-ffmpeg` ships a static FFmpeg binary and is used as a fallback when FFmpeg is not installed system-wide. This is particularly useful on Windows where FFmpeg has no standard install location.
+
+If your system uses `pip3`:
 
 ```bash
-pip3 install yt-dlp
+pip3 install yt-dlp imageio-ffmpeg
 ```
 
-FFmpeg is a system binary, not a Python package. Install it via your package manager:
+**FFmpeg** (optional but recommended for best quality): installing it system-wide takes priority over the bundled binary.
 
 ```bash
 # macOS
@@ -63,7 +63,7 @@ sudo apt install ffmpeg
 choco install ffmpeg
 ```
 
-Verify both are available:
+Verify:
 
 ```bash
 yt-dlp --version
