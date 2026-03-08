@@ -1,5 +1,5 @@
 import express from 'express';
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import path from 'path';
 const port = 8080;
 const app = express();
@@ -7,6 +7,19 @@ import fs from 'fs';
 
 import cors from 'cors';
 app.use(cors());
+
+// Detect correct Python executable (python3 on macOS/Linux, python on Windows)
+function getPythonExecutable() {
+    const candidates = ['python3', 'python'];
+    for (const cmd of candidates) {
+        const result = spawnSync(cmd, ['--version']);
+        if (result.status === 0) return cmd;
+    }
+    throw new Error('Python not found. Install Python 3 and ensure it is in your PATH.');
+}
+
+const PYTHON = getPythonExecutable();
+console.log(`Using Python executable: ${PYTHON}`);
 
 
 
@@ -16,7 +29,7 @@ app.get('/formats', (req, res) => {
 
     const scriptPath = path.resolve('./yt_dlp_handler/main.py');
 
-    const python = spawn('python3', [scriptPath, 'formats', videoUrl]);
+    const python = spawn(PYTHON, [scriptPath, 'formats', videoUrl]);
 
     let stdout = '';
     let stderr = '';
@@ -53,7 +66,7 @@ app.get('/download', (req, res) => {
     console.log(url , format);
 
     const scriptPath = path.resolve('./yt_dlp_handler/main.py');
-    const python = spawn('python3', [scriptPath, 'download', url, format]);
+    const python = spawn(PYTHON, [scriptPath, 'download', url, format]);
 
     let stdout = '';
     let stderr = '';
@@ -102,7 +115,7 @@ app.get('/get-download-url', (req, res) => {
 
     const scriptPath = path.resolve('./yt_dlp_handler/main.py');
 
-    const python = spawn('python3', [scriptPath, 'get_url', url, format]);
+    const python = spawn(PYTHON, [scriptPath, 'get_url', url, format]);
 
     let stdout = '';
     let stderr = '';
