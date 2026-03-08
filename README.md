@@ -36,7 +36,41 @@ pip install yt-dlp
 
 ## Setup
 
-### Backend
+### 1. Python Dependencies
+
+Install yt-dlp and FFmpeg. yt-dlp is the only Python package required — it is not bundled and must be installed manually.
+
+```bash
+pip install yt-dlp
+```
+
+Or if your system defaults to `python` instead of `python3`:
+
+```bash
+pip3 install yt-dlp
+```
+
+FFmpeg is a system binary, not a Python package. Install it via your package manager:
+
+```bash
+# macOS
+brew install ffmpeg
+
+# Ubuntu / Debian
+sudo apt install ffmpeg
+
+# Windows (via Chocolatey)
+choco install ffmpeg
+```
+
+Verify both are available:
+
+```bash
+yt-dlp --version
+ffmpeg -version
+```
+
+### 2. Backend
 
 ```bash
 cd Backend
@@ -46,7 +80,7 @@ node index.js
 
 Server starts on port `8080`. Keep this running while using the extension.
 
-### Frontend (Extension)
+### 3. Frontend (Extension)
 
 ```bash
 cd Frontend
