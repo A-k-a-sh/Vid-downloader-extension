@@ -1,5 +1,5 @@
 import express from 'express';
-import { spawn, execSync } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import path from 'path';
 const port = 8080;
 const app = express();
@@ -11,7 +11,7 @@ app.use(cors());
 // Detect correct Python executable — prefer whichever has yt_dlp installed
 function getPythonExecutable() {
     const candidates = [
-        'python', 'python3',
+        'python3', 'python',
         'c:/python314/python.exe',
         'c:/python313/python.exe',
         'c:/python312/python.exe',
@@ -19,11 +19,13 @@ function getPythonExecutable() {
     ];
     // First pass: find a Python that has yt_dlp
     for (const cmd of candidates) {
-        try { execSync(`"${cmd}" -c "import yt_dlp"`, { stdio: 'ignore' }); return cmd; } catch {}
+        const result = spawnSync(cmd, ['-c', 'import yt_dlp'], { stdio: 'ignore' });
+        if (result.status === 0) return cmd;
     }
     // Second pass: any Python that runs at all
     for (const cmd of candidates) {
-        try { execSync(`"${cmd}" --version`, { stdio: 'ignore' }); return cmd; } catch {}
+        const result = spawnSync(cmd, ['--version'], { stdio: 'ignore' });
+        if (result.status === 0) return cmd;
     }
     throw new Error('No Python executable with yt_dlp found. Run: pip install yt-dlp');
 }

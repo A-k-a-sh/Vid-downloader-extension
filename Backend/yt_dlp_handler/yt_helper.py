@@ -47,7 +47,6 @@ def list_formats(video_url):
     ydl_opts = {
         'quiet': True,
         'no_warnings': False,
-        'extractor_args': {'youtube': {'player_client': ['web']}},
     }
     
     try:
@@ -135,7 +134,6 @@ def download_video(video_url, format_id, valid_formats):
         'quiet': True,
         'no_warnings': True,
         'logger': MyLogger(),
-        'extractor_args': {'youtube': {'player_client': ['web']}},
     }
 
     try:
