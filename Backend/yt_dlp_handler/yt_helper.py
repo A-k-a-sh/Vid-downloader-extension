@@ -21,10 +21,19 @@ def human_readable_size(size_bytes):
     return f"{size_bytes:.2f} TB"
 
 def check_ffmpeg():
-    """Check if FFmpeg is available."""
-    ffmpeg_path = '/opt/homebrew/bin/ffmpeg'
-    if os.path.exists(ffmpeg_path):
-        return ffmpeg_path
+    """Check if FFmpeg is available. Checks known install locations then PATH."""
+    candidates = [
+        '/opt/homebrew/bin/ffmpeg',          # macOS Homebrew (Apple Silicon)
+        '/usr/local/bin/ffmpeg',              # macOS Homebrew (Intel) / Linux
+        '/usr/bin/ffmpeg',                    # Linux apt
+        r'C:\ffmpeg\bin\ffmpeg.exe',          # Windows manual install
+        r'C:\Program Files\ffmpeg\bin\ffmpeg.exe',
+        r'C:\ProgramData\chocolatey\bin\ffmpeg.exe',  # Windows Chocolatey
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return path
+    # Fall back to PATH lookup (works if ffmpeg is in PATH on any OS)
     return shutil.which('ffmpeg')
 
 def list_formats(video_url):
@@ -32,6 +41,7 @@ def list_formats(video_url):
     ydl_opts = {
         'quiet': True,
         'no_warnings': False,
+        'extractor_args': {'youtube': {'player_client': ['web']}},
     }
     
     try:
@@ -119,6 +129,7 @@ def download_video(video_url, format_id, valid_formats):
         'quiet': True,
         'no_warnings': True,
         'logger': MyLogger(),
+        'extractor_args': {'youtube': {'player_client': ['web']}},
     }
 
     try:
