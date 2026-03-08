@@ -37,9 +37,12 @@ def check_ffmpeg():
     # Last resort: imageio-ffmpeg ships a static binary, works on Windows with no manual install
     try:
         import imageio_ffmpeg
-        return imageio_ffmpeg.get_ffmpeg_exe()
-    except Exception:
-        pass
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+        if os.path.exists(ffmpeg_exe):
+            return ffmpeg_exe
+        print(f"imageio-ffmpeg returned path but file not found: {ffmpeg_exe}", file=sys.stderr)
+    except Exception as e:
+        print(f"imageio-ffmpeg fallback failed: {e}", file=sys.stderr)
     return None
 
 def list_formats(video_url):
@@ -105,7 +108,8 @@ def list_formats(video_url):
                 'resolution': f.get('resolution', 'audio only' if is_audio_only else 'N/A'),
                 'note': f.get('format_note', 'N/A'),
                 'fps': str(f.get('fps', 'N/A')),
-                'size': human_readable_size(actual_size)
+                'size': human_readable_size(actual_size),
+                'needs_merge': is_video_only,  # True = video-only, must merge with audio
             })
         
         return valid_formats, title, duration
@@ -121,15 +125,29 @@ def download_video(video_url, format_id, valid_formats):
 
     ffmpeg_path = check_ffmpeg()
     is_audio_only = any(f['format_id'] == format_id and f.get('resolution') == 'audio only' for f in valid_formats)
+    # needs_merge = True means format is video-only and must be merged with audio (needs FFmpeg)
+    needs_merge = any(f['format_id'] == format_id and f.get('needs_merge') for f in valid_formats)
 
-    if not ffmpeg_path and not is_audio_only:
-        print("FFmpeg not found and format requires video merging", file=sys.stderr)
+    if not ffmpeg_path and needs_merge:
+        print("FFmpeg not found and format requires video merging. Install imageio-ffmpeg: pip install imageio-ffmpeg", file=sys.stderr)
         return False
+
+    if is_audio_only:
+        fmt_string = format_id
+        merge_fmt = None
+    elif needs_merge:
+        # Video-only: merge with best audio
+        fmt_string = f'{format_id}+bestaudio'
+        merge_fmt = 'mp4'
+    else:
+        # Combined video+audio (e.g. HLS streams, MP4 with audio): download directly
+        fmt_string = format_id
+        merge_fmt = None
 
     ydl_opts = {
         'outtmpl': f'{output_folder}/%(title)s.%(ext)s',
-        'format': format_id if is_audio_only else f'{format_id}+bestaudio/best',
-        'merge_output_format': None if is_audio_only else 'mp4',
+        'format': fmt_string,
+        'merge_output_format': merge_fmt,
         'ffmpeg_location': ffmpeg_path if ffmpeg_path else None,
         'quiet': True,
         'no_warnings': True,
