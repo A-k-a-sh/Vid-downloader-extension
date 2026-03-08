@@ -1,0 +1,49 @@
+.mainDiv {
+    
+    background: linear-gradient(180deg, rgba(2, 0, 36, 1) 0%, rgba(13, 11, 120, 1) 19%, rgba(9, 9, 121, 1) 35%, rgba(25, 153, 179, 1) 95%);
+
+    
+    
+}
+
+.sunAnimation {
+  animation: sunBounce 0.6s ease-out;
+}
+
+@keyframes sunBounce {
+  0% {
+    transform: translateY(-30px) scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(5px) scale(1.1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(-2px) scale(0.95);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+.moonAnimation {
+  animation: moonBounce 0.6s ease-out;
+}
+
+@keyframes moonBounce {
+  0% {
+    transform: translateY(30px) scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-5px) scale(1.1);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(2px) scale(0.95);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}

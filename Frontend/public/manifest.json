@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "React Video Downloader",
+  "version": "1.0.0",
+  "description": "A browser extension to download videos from the current tab.",
+  "permissions": [
+    "activeTab",
+    "downloads",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    
+  }
+}
